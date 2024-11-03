@@ -13,15 +13,25 @@
             padding: 0.5em;
             margin: 0.5em 0;
         }
+        .record {
+            margin-top: 1em;
+            padding: 0.5em;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        .record p {
+            margin: 0.3em 0;
+        }
     </style>
 </head>
 <body>
 
     <h1>Search Text in GitHub-Hosted CSV</h1>
-    <p>Enter the URL of the GitHub CSV file and the text you want to search for.</p>
+    <p>Enter the text you want to search for in the CSV file.</p>
 
-    <label for="csvUrl">GitHub CSV URL:</label>
-    <input type="text" id="csvUrl" placeholder="https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-losses-escalation.csv" size="60">
+    <label for="csvUrl">GitHub CSV Raw URL:</label>
+    <input type="text" id="csvUrl" size="60" value="https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-losses-escalation.csv" readonly>
     <br>
 
     <label for="searchText">Text to Search:</label>
@@ -30,14 +40,14 @@
 
     <button onclick="searchInCSV()">Search</button>
 
-    <p id="result"></p>
+    <div id="result"></div>
 
     <script>
         async function searchInCSV() {
             const csvUrl = document.getElementById("csvUrl").value;
             const searchText = document.getElementById("searchText").value.toLowerCase();
             const resultElement = document.getElementById("result");
-            resultElement.textContent = "Searching...";
+            resultElement.innerHTML = "Searching...";
 
             try {
                 // Fetch the CSV file
@@ -49,15 +59,31 @@
 
                 // Split CSV text into rows and columns
                 const rows = csvText.split("\n").map(row => row.split(","));
-                
-                // Check if any cell contains the search text
-                const found = rows.some(row => row.some(cell => cell.toLowerCase().includes(searchText)));
 
-                resultElement.textContent = found
-                    ? `The text "${searchText}" was found in the CSV file.`
-                    : `The text "${searchText}" was not found in the CSV file.`;
+                // Get the header row for formatting
+                const headers = rows[0];
+                const foundRecords = [];
+
+                // Check each row for the search text and collect matching rows
+                for (let i = 1; i < rows.length; i++) {
+                    if (rows[i].some(cell => cell.toLowerCase().includes(searchText))) {
+                        const record = rows[i];
+                        foundRecords.push(record);
+                    }
+                }
+
+                // Display the results
+                if (foundRecords.length > 0) {
+                    resultElement.innerHTML = `<p>Found ${foundRecords.length} record(s) matching "${searchText}":</p>`;
+                    foundRecords.forEach(record => {
+                        const recordHTML = headers.map((header, index) => `<p><strong>${header.trim()}:</strong> ${record[index]?.trim() || ''}</p>`).join("");
+                        resultElement.innerHTML += `<div class="record">${recordHTML}</div>`;
+                    });
+                } else {
+                    resultElement.innerHTML = `The text "${searchText}" was not found in the CSV file.`;
+                }
             } catch (error) {
-                resultElement.textContent = `Error: ${error.message}`;
+                resultElement.innerHTML = `Error: ${error.message}`;
             }
         }
     </script>
