@@ -11,6 +11,21 @@
             gap: 20px;
             padding: 2em;
         }
+         nav {
+            width: 100%;
+            background-color: #333;
+            padding: 1em;
+            box-sizing: border-box;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1em;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
         .search-container {
             width: 60%;
         }
@@ -61,7 +76,13 @@
     </style>
 </head>
 <body>
-
+<!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="page1.html">Page 1</a>
+        <a href="page2.html">Page 2</a>
+        <a href="page3.html">Page 3</a>
+    </nav>
     <div class="search-container">
         <h1>Search Hezbollah martyrs</h1>
         <p>Enter the name you want to search for in the CSV file. Supports partial matches.</p>
