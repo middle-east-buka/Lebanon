@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Input to CSV Formatter</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .form-container {
+            max-width: 500px;
+            width: 100%;
+            padding: 1em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+            margin-bottom: 1em;
+        }
+        .form-container label {
+            display: block;
+            margin: 0.5em 0 0.2em;
+        }
+        .form-container input {
+            width: 100%;
+            padding: 0.5em;
+            margin-bottom: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+        .form-container button {
+            padding: 0.5em 1em;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1em;
+        }
+        .form-container button:hover {
+            background-color: #45a049;
+        }
+        .csv-output {
+            width: 100%;
+            max-width: 500px;
+            word-wrap: break-word;
+            white-space: pre-wrap;
+            background-color: #f4f4f4;
+            padding: 1em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Enter Details to Format as CSV</h1>
+
+    <div class="form-container">
+        <label for="name">Name</label>
+        <input type="text" id="name" placeholder="Enter Name">
+
+        <label for="arabicName">Arabic Name</label>
+        <input type="text" id="arabicName" placeholder="Enter Arabic Name">
+
+        <label for="homeTown">Home Town</label>
+        <input type="text" id="homeTown" placeholder="Enter Home Town">
+
+        <label for="homeTownArabic">Home Town in Arabic</label>
+        <input type="text" id="homeTownArabic" placeholder="Enter Home Town in Arabic">
+
+        <label for="funeralTown">Funeral Town</label>
+        <input type="text" id="funeralTown" placeholder="Enter Funeral Town">
+
+        <label for="funeralTownArabic">Funeral Town in Arabic</label>
+        <input type="text" id="funeralTownArabic" placeholder="Enter Funeral Town in Arabic">
+
+        <label for="day">Day</label>
+        <input type="text" id="day" placeholder="Enter Day">
+
+        <label for="hour">Hour</label>
+        <input type="text" id="hour" placeholder="Enter Hour">
+
+        <button onclick="generateCSV()">Generate CSV</button>
+    </div>
+
+    <div class="csv-output" id="csvOutput"></div>
+
+    <script>
+        function generateCSV() {
+            // Get input values
+            const name = document.getElementById("name").value.trim();
+            const arabicName = document.getElementById("arabicName").value.trim();
+            const homeTown = document.getElementById("homeTown").value.trim();
+            const homeTownArabic = document.getElementById("homeTownArabic").value.trim();
+            const funeralTown = document.getElementById("funeralTown").value.trim();
+            const funeralTownArabic = document.getElementById("funeralTownArabic").value.trim();
+            const day = document.getElementById("day").value.trim();
+            const hour = document.getElementById("hour").value.trim();
+
+            // Generate CSV-formatted string
+            const csvHeader = "Name,Arabic Name,Home Town,Home Town in Arabic,Funeral Town,Funeral Town in Arabic,Day,Hour";
+            const csvRow = `"${name}","${arabicName}","${homeTown}","${homeTownArabic}","${funeralTown}","${funeralTownArabic}","${day}","${hour}"`;
+            const csvOutput = `${csvHeader}\n${csvRow}`;
+
+            // Display the CSV output
+            document.getElementById("csvOutput").textContent = csvOutput;
+        }
+    </script>
+
+</body>
+</html>
