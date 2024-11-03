@@ -22,16 +22,6 @@
         .result-container {
             margin-top: 1em;
         }
-        .record {
-            padding: 0.5em;
-            margin: 0.5em 0;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background-color: #f9f9f9;
-        }
-        .record p {
-            margin: 0.3em 0;
-        }
         .grid-container {
             width: 40%;
             max-height: 80vh;
@@ -54,6 +44,9 @@
             background-color: #eee;
             position: sticky;
             top: 0;
+        }
+        .highlight {
+            background-color: #ffd966;
         }
     </style>
 </head>
@@ -83,26 +76,26 @@
 
     <script>
         let allRecords = [];
-        
+
         async function loadCSV() {
             const csvUrl = document.getElementById("csvUrl").value;
             const csvGrid = document.getElementById("csvGrid");
-            
+
             try {
                 // Fetch the CSV file
                 const response = await fetch(csvUrl);
                 if (!response.ok) throw new Error("CSV file could not be retrieved.");
-                
+
                 // Get the CSV content as text
                 const csvText = await response.text();
-                
+
                 // Split CSV text into rows and columns
                 const rows = csvText.split("\n").map(row => row.split(","));
                 
                 // Store all records for search
                 allRecords = rows.slice(1).map(row => row.map(cell => cell.trim()));
                 
-                // Render CSV data in the grid with lazy scrolling
+                // Render CSV data in the grid
                 const headers = rows[0];
                 csvGrid.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
                 
@@ -118,23 +111,28 @@
         async function searchInCSV() {
             const searchText = document.getElementById("searchText").value.toLowerCase().split(" ");
             const resultElement = document.getElementById("result");
+            const csvGrid = document.getElementById("csvGrid");
+
             resultElement.innerHTML = "Searching...";
             
-            // Filter matching records
-            const matchingRecords = allRecords.filter(record =>
-                searchText.every(term => record.some(cell => cell.toLowerCase().includes(term)))
-            );
+            // Reset all row highlights
+            Array.from(csvGrid.getElementsByTagName("tr")).forEach(row => row.classList.remove("highlight"));
             
-            // Display search results
-            if (matchingRecords.length > 0) {
-                resultElement.innerHTML = `<p>Found ${matchingRecords.length} record(s) matching "${searchText.join(" ")}":</p>`;
-                matchingRecords.forEach(record => {
-                    const recordHTML = record.map((cell, index) => `<p><strong>${allRecords[0][index]}:</strong> ${cell}</p>`).join("");
-                    resultElement.innerHTML += `<div class="record">${recordHTML}</div>`;
-                });
-            } else {
-                resultElement.innerHTML = `No records found for "${searchText.join(" ")}".`;
-            }
+            // Filter matching records and highlight them
+            let matchingCount = 0;
+            allRecords.forEach((record, rowIndex) => {
+                const match = searchText.every(term => record.some(cell => cell.toLowerCase().includes(term)));
+                if (match) {
+                    matchingCount++;
+                    // Highlight the matching row in the table grid
+                    csvGrid.getElementsByTagName("tr")[rowIndex + 1].classList.add("highlight");
+                }
+            });
+
+            // Display the number of matches
+            resultElement.innerHTML = matchingCount > 0
+                ? `Found ${matchingCount} record(s) matching "${searchText.join(" ")}".`
+                : `No records found for "${searchText.join(" ")}".`;
         }
         
         // Load CSV on page load
