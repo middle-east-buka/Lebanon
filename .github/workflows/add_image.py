@@ -4,7 +4,7 @@ import requests
 
 # Extract issue content
 issue_body = os.getenv("ISSUE_BODY")
-print("Issue body content:", issue_body)  # Debugging output
+print("Issue body content 88 :", issue_body)  # Debugging output
 
 # Regex pattern to match image URL in Markdown format
 match = re.search(r'!\[.*\]\((https?://\S+)\)', issue_body)
