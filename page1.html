@@ -1,1 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Search on GitHub</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            gap: 20px;
+            padding: 2em;
+            flex-direction: column;
+        }
+        nav {
+            width: 100%;
+            background-color: #333;
+            padding: 1em;
+            box-sizing: border-box;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1em;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        .container {
+            display: flex;
+            gap: 20px;
+        }
+        .search-container {
+            width: 60%;
+        }
+        input, button {
+            padding: 0.5em;
+            margin: 0.5em 0;
+            width: 100%;
+        }
+        .result-container {
+            margin-top: 1em;
+        }
+        .formatted-result {
+            padding: 1em;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+            margin-top: 1em;
+        }
+        .formatted-result p {
+            margin: 0.2em 0;
+        }
+        .grid-container {
+            width: 40%;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            padding: 1em;
+            background-color: #f4f4f4;
+        }
+        .grid-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .grid-table th, .grid-table td {
+            border: 1px solid #ddd;
+            padding: 0.5em;
+            text-align: left;
+            font-size: 0.9em;
+        }
+        .grid-table th {
+            background-color: #eee;
+            position: sticky;
+            top: 0;
+        }
+        .highlight {
+            background-color: #ffd966;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation Menu -->
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="page2.html">CSV Formatter</a>
+        <a href="page3.html">Page 3</a>
+    </nav>
+    <div class="search-container">
+        <h1>Search Hezbollah martyrs</h1>
+        <p>Enter the name you want to search for in the CSV file. Supports partial matches.</p>
+
+        <label for="csvUrl">GitHub CSV Raw URL:</label>
+        <input type="text" id="csvUrl" value="https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-losses-escalation.csv" readonly>
+        <br>
+
+        <label for="searchText">Name to Search:</label>
+        <input type="text" id="searchText" placeholder="Enter text to search">
+        <br>
+
+        <button onclick="searchInCSV()">Search</button>
+
+        <div id="result" class="result-container"></div>
+    </div>
+
+    <div class="grid-container">
+        <h2>CSV Data</h2>
+        <table class="grid-table" id="csvGrid"></table>
+    </div>
+
+    <script>
+        let allRecords = [];
+        let headers = [];
+
+        async function loadCSV() {
+            const csvUrl = document.getElementById("csvUrl").value;
+            const csvGrid = document.getElementById("csvGrid");
+
+            try {
+                // Fetch the CSV file
+                const response = await fetch(csvUrl);
+                if (!response.ok) throw new Error("CSV file could not be retrieved.");
+
+                // Get the CSV content as text
+                const csvText = await response.text();
+
+                // Split CSV text into rows and columns
+                const rows = csvText.split("\n").map(row => row.split(","));
+                
+                // Extract headers and store all records for search
+                headers = rows[0].map(header => header.trim());
+                allRecords = rows.slice(1).map(row => row.map(cell => cell.trim()));
+                
+                // Render CSV data in the grid
+                csvGrid.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
+                
+                allRecords.forEach(record => {
+                    const rowHTML = `<tr>${record.map(cell => `<td>${cell}</td>`).join("")}</tr>`;
+                    csvGrid.innerHTML += rowHTML;
+                });
+            } catch (error) {
+                console.error("Error loading CSV:", error);
+            }
+        }
+
+        async function searchInCSV() {
+            const searchText = document.getElementById("searchText").value.toLowerCase().split(" ");
+            const resultElement = document.getElementById("result");
+            const csvGrid = document.getElementById("csvGrid");
+
+            resultElement.innerHTML = "Searching...";
+            
+            // Reset all row highlights
+            Array.from(csvGrid.getElementsByTagName("tr")).forEach(row => row.classList.remove("highlight"));
+            
+            // Filter matching records and highlight them
+            const matchingRecords = allRecords.filter((record, rowIndex) => {
+                const isMatch = searchText.every(term => record.some(cell => cell.toLowerCase().includes(term)));
+                if (isMatch) {
+                    // Highlight the matching row in the table grid
+                    csvGrid.getElementsByTagName("tr")[rowIndex + 1].classList.add("highlight");
+                }
+                return isMatch;
+            });
+
+            // Display formatted search results
+            if (matchingRecords.length > 0) {
+                resultElement.innerHTML = `<p>Found ${matchingRecords.length} record(s) matching "${searchText.join(" ")}":</p>`;
+                matchingRecords.forEach(record => {
+                    const recordHTML = headers.map((header, index) => `<p><strong>${header}:</strong> ${record[index] || ''}</p>`).join("");
+                    resultElement.innerHTML += `<div class="formatted-result">${recordHTML}</div>`;
+                });
+            } else {
+                resultElement.innerHTML = `No records found for "${searchText.join(" ")}".`;
+            }
+        }
+        
+        // Load CSV on page load
+        window.onload = loadCSV;
+    </script>
+
+</body>
+</html>
 
