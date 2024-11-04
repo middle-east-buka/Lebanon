@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Record to Hezbollah Losses CSV</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 600px;
+            margin: 2em auto;
+            text-align: center;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+            gap: 1em;
+            padding: 2em;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: #f9f9f9;
+        }
+        input, textarea, button {
+            padding: 0.5em;
+            font-size: 1em;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 100%;
+        }
+        #drop-zone {
+            border: 2px dashed #888;
+            padding: 1em;
+            background-color: #f4f4f4;
+            color: #555;
+            cursor: pointer;
+        }
+        #drop-zone.dragging {
+            border-color: #4CAF50;
+            background-color: #eaffea;
+        }
+        .submit-btn {
+            background-color: #4CAF50;
+            color: white;
+            cursor: pointer;
+            font-size: 1.1em;
+        }
+        .submit-btn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Add Record to Hezbollah Losses CSV</h1>
+    
+    <form id="recordForm">
+        <input type="text" id="name" placeholder="Name" required>
+        <input type="text" id="arabicName" placeholder="Arabic Name" required>
+        <input type="text" id="homeTown" placeholder="Home Town" required>
+        <input type="text" id="homeTownArabic" placeholder="Home Town in Arabic" required>
+        <input type="text" id="funeralTown" placeholder="Funeral Town" required>
+        <input type="text" id="funeralTownArabic" placeholder="Funeral Town in Arabic" required>
+        <input type="date" id="day" placeholder="Day" required>
+        <input type="time" id="hour" placeholder="Hour" required>
+        
+        <div id="drop-zone">Drag & Drop Image Here or Click to Upload</div>
+        <input type="file" id="imageFile" accept="image/*" style="display: none;">
+        <input type="hidden" id="imagePath" value="">
+
+        <button type="button" class="submit-btn" onclick="submitRecord()">Submit Record</button>
+    </form>
+
+    <script>
+        const dropZone = document.getElementById("drop-zone");
+        const imageFileInput = document.getElementById("imageFile");
+        const imagePathInput = document.getElementById("imagePath");
+
+        // Drag-and-drop handling
+        dropZone.addEventListener("click", () => imageFileInput.click());
+        dropZone.addEventListener("dragover", (e) => {
+            e.preventDefault();
+            dropZone.classList.add("dragging");
+        });
+        dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragging"));
+        dropZone.addEventListener("drop", (e) => {
+            e.preventDefault();
+            dropZone.classList.remove("dragging");
+            handleFileUpload(e.dataTransfer.files[0]);
+        });
+        imageFileInput.addEventListener("change", (e) => handleFileUpload(e.target.files[0]));
+
+        // Function to handle file upload
+        async function handleFileUpload(file) {
+            if (!file) return;
+            const formData = new FormData();
+            formData.append("file", file);
+
+            try {
+                const response = await fetch("https://your-backend-url.com/upload", {
+                    method: "POST",
+                    body: formData,
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    imagePathInput.value = result.filePath; // Path where image is stored in GitHub
+                    dropZone.textContent = `Image uploaded: ${result.filePath}`;
+                } else {
+                    dropZone.textContent = `Image upload failed: ${result.message}`;
+                }
+            } catch (error) {
+                console.error("Error uploading image:", error);
+                dropZone.textContent = "Error uploading image.";
+            }
+        }
+
+        // Function to submit the record to backend
+        async function submitRecord() {
+            const record = {
+                name: document.getElementById("name").value.trim(),
+                arabicName: document.getElementById("arabicName").value.trim(),
+                homeTown: document.getElementById("homeTown").value.trim(),
+                homeTownArabic: document.getElementById("homeTownArabic").value.trim(),
+                funeralTown: document.getElementById("funeralTown").value.trim(),
+                funeralTownArabic: document.getElementById("funeralTownArabic").value.trim(),
+                day: document.getElementById("day").value.trim(),
+                hour: document.getElementById("hour").value.trim(),
+                imagePath: imagePathInput.value
+            };
+
+            try {
+                const response = await fetch("https://your-backend-url.com/add-record", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(record)
+                });
+
+                if (response.ok) {
+                    alert("Record added successfully!");
+                    document.getElementById("recordForm").reset();
+                    dropZone.textContent = "Drag & Drop Image Here or Click to Upload";
+                } else {
+                    const error = await response.json();
+                    alert("Error adding record: " + error.message);
+                }
+            } catch (error) {
+                console.error("Error adding record:", error);
+                alert("Error adding record.");
+            }
+        }
+    </script>
+
+</body>
+</html>
