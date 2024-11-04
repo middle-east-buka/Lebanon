@@ -125,7 +125,7 @@
             const text = await response.text();
             const rows = text.trim().split("\n").slice(1);  // Remove header
             let beforeCount = 0, afterCount = 0;
-            const thresholdDate = new Date("2024-09-23");
+            const thresholdDate = new Date("24/09/2024");
 
             rows.forEach(row => {
                 const columns = row.split(",");
