@@ -7,7 +7,7 @@ issue_body = os.getenv("ISSUE_BODY")
 print("Issue body content:", issue_body)  # Debugging output
 
 # Regex pattern to match image URL in Markdown format
-match = re.search(r'!\[.*\]\((https?://\S+\.(?:jpg|jpeg|png|gif))\)', issue_body)
+match = re.search(r'!\[.*\]\((https?://\S+)\)', issue_body)
 
 if match:
     image_url = match.group(1)  # Extracted URL part
