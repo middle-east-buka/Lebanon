@@ -30,7 +30,7 @@ jobs:
         if: steps.check_label.outputs.has_label == 'true'
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
-        run: python3 append_to_csv.py
+        run: python3 .github/workflows/append_to_csv.py
 
       - name: Commit and push changes
         if: steps.check_label.outputs.has_label == 'true'
