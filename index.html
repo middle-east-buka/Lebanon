@@ -130,7 +130,6 @@ const csvUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/
 
             rows.forEach(row => {
                 const columns = row.split(",");
-                const dayString = columns[6].trim();
                 const dayString = columns[6];
                 const recordDate = new Date(dayString);
                 if (recordDate < thresholdDate) {
