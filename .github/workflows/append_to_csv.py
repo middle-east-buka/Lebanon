@@ -32,7 +32,7 @@ csv_file = "hezbollah-martyrs/hezbollah-losses-escalation.csv"
 df = pd.read_csv(csv_file)
 print("Append the new record")
 # Append the new record
-df = df.append(record, ignore_index=True)
+df = pd.concat([df, pd.DataFrame([record])], ignore_index=True)
 # Save the updated CSV file
 print("Save the updated CSV file")
 df.to_csv(csv_file, index=False)
