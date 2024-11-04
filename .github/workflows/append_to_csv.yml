@@ -20,10 +20,10 @@ jobs:
       - name: Install dependencies
         run: pip install pandas
 
-      - name: Check if issue has 'new-record' label
+      - name: Check if issue has 'new' label
         id: check_label
         run: |
-          echo "::set-output name=has_label::$(echo '${{ github.event.issue.labels }}' | grep -q 'new-record' && echo 'true' || echo 'false')"
+          echo "::set-output name=has_label::$(echo '${{ github.event.issue.labels }}' | grep -q 'new' && echo 'true' || echo 'false')"
 
       - name: Extract issue content and append to CSV
         if: steps.check_label.outputs.has_label == 'true'
