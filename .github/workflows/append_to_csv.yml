@@ -6,7 +6,6 @@ on:
 
 jobs:
   append_to_csv:
-    if: github.event.issue.labels.*.name contains 'new-record'
     runs-on: ubuntu-latest
 
     steps:
@@ -21,13 +20,18 @@ jobs:
       - name: Install dependencies
         run: pip install pandas
 
+      - name: Check if issue has 'new-record' label
+        id: check_label
+        run: |
+          echo "::set-output name=has_label::$(echo '${{ github.event.issue.labels }}' | grep -q 'new-record' && echo 'true' || echo 'false')"
+
       - name: Extract issue content and append to CSV
+        if: steps.check_label.outputs.has_label == 'true'
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: |
           import os
           import pandas as pd
-          from datetime import datetime
 
           # Extract issue content
           issue_body = os.getenv("ISSUE_BODY")
@@ -66,6 +70,7 @@ jobs:
           df.to_csv(csv_file, index=False)
 
       - name: Commit and push changes
+        if: steps.check_label.outputs.has_label == 'true'
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
