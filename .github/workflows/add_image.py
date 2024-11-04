@@ -2,12 +2,12 @@ import os
 import re
 import requests
 
-# Extract image URL from issue body (assuming it’s included as a direct URL)
+# Extract the image URL from Markdown syntax (e.g., ![alt-text](URL))
 issue_body = os.getenv("ISSUE_BODY")
-image_urls = re.findall(r'(https?://\S+\.(?:jpg|jpeg|png|gif))', issue_body)
+match = re.search(r'!\[.*\]\((https?://\S+\.(?:jpg|jpeg|png|gif))\)', issue_body)
 
-if image_urls:
-    image_url = image_urls[0]  # Use the first image URL found
+if match:
+    image_url = match.group(1)  # Extracted URL part
     image_name = os.path.basename(image_url)
     image_path = f"hezbollah-martyrs/images/{image_name}"
 
