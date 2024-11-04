@@ -1,10 +1,11 @@
 import os
 import pandas as pd
-
+print("Extract issue content")
 # Extract issue content
 issue_body = os.getenv("ISSUE_BODY")
 lines = issue_body.splitlines()
 record = {}
+print("Parse fields from issue body")
 # Parse fields from issue body
 for line in lines:
     if line.startswith("**Name**:"):
@@ -26,9 +27,12 @@ for line in lines:
     elif line.startswith("**Image Path**:"):
         record["Image Path"] = line.split("**Image Path**:")[1].strip()
 # Read the existing CSV file
+print("Read the existing CSV file")
 csv_file = "hezbollah-martyrs/hezbollah-losses-escalation.csv"
 df = pd.read_csv(csv_file)
+print("Append the new record")
 # Append the new record
 df = df.append(record, ignore_index=True)
 # Save the updated CSV file
+print("Save the updated CSV file")
 df.to_csv(csv_file, index=False)
