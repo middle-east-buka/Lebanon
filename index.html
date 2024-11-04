@@ -110,51 +110,33 @@
     </div>
 
     <h2>Image Gallery</h2>
-    <div id="gallery" class="gallery">
-        <p class="loading">Loading images...</p>
-    </div>
+<div id="gallery" class="gallery">
+    <p class="loading">Loading images...</p>
+</div>
 
-    <script>
-        const csvUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-losses-escalation.csv";
-    
-        const imageDirUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/images/";
+<script>
+    const repoOwner = "middle-east-buka";
+    const repoName = "Lebanon";
+    const imageDirPath = "hezbollah-martyrs/images"; // Directory containing the images
 
-        // Load and parse CSV
-        async function loadCSV() {
-            const response = await fetch(csvUrl);
-            const text = await response.text();
-            const rows = text.trim().split("\n").slice(1);  // Remove header
-            let beforeCount = 0, afterCount = 0;
-            const thresholdDate = new Date("24/09/2024");
+    async function loadImagesFromGitHub() {
+        const gallery = document.getElementById("gallery");
+        gallery.innerHTML = "";  // Clear loading text
 
-            rows.forEach(row => {
-                const columns = row.split(",");
-                const dayString = columns[6];
-                const recordDate = new Date(dayString);
-                if (recordDate < thresholdDate) {
-                    beforeCount++;
-                } else {
-                    afterCount++;
-                }
-            });
+        try {
+            // GitHub API URL to list directory contents
+            const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${imageDirPath}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error("Failed to load images from GitHub.");
 
-            // Update counters
-            document.getElementById("beforeCount").textContent = beforeCount;
-            document.getElementById("afterCount").textContent = afterCount;
-            document.getElementById("totalCount").textContent = rows.length;
-        }
+            const files = await response.json();
 
-        // Load images
-        async function loadImages() {
-            const gallery = document.getElementById("gallery");
-            gallery.innerHTML = "";  // Clear loading text
+            // Filter image files (assumes images have extensions like .jpg, .png, etc.)
+            const imageFiles = files.filter(file => file.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(file.name));
 
-            // Add images dynamically (assuming image filenames are known)
-            const imageFiles = ["image1.jpg", "image2.jpg", "image3.jpg"]; // Add all image filenames here
-            imageFiles.forEach(fileName => {
-                const imgUrl = `${imageDirUrl}${fileName}`;
+            imageFiles.forEach(file => {
                 const imgElement = document.createElement("img");
-                imgElement.src = imgUrl;
+                imgElement.src = file.download_url;
                 imgElement.alt = "Hezbollah Martyr";
 
                 const galleryItem = document.createElement("div");
@@ -162,12 +144,14 @@
                 galleryItem.appendChild(imgElement);
                 gallery.appendChild(galleryItem);
             });
+        } catch (error) {
+            gallery.innerHTML = `<p class="loading">Error loading images: ${error.message}</p>`;
+            console.error(error);
         }
+    }
 
-        // Initialize page content
-        loadCSV();
-        loadImages();
-    </script>
-
+    // Load images when the page loads
+    loadImagesFromGitHub();
+</script>
 </body>
 </html>
