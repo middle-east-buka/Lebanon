@@ -23,6 +23,7 @@ jobs:
       - name: Check if issue has 'new' label
         id: check_label
         run: |
+          echo "Issue labels: ${{ toJson(github.event.issue.labels) }}"
           echo "name=has_label::$(echo '${{ github.event.issue.labels }}' | grep -q 'new' && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT
 
       - name: Extract issue content and append to CSV
