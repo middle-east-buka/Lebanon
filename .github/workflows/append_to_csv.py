@@ -6,6 +6,16 @@ issue_body = os.getenv("ISSUE_BODY")
 lines = issue_body.splitlines()
 record = {}
 print("Parse fields from issue body")
+
+match = re.search(r'!\[.*\]\((https?://\S+)\)', issue_body)
+image_path = ""
+if match:
+    image_url = match.group(1)  # Extracted URL part
+    image_name = os.path.basename(image_url)+".jpg"
+    image_path = f"hezbollah-martyrs/images/{image_name}"
+
+    print("Image URL found:", image_url)  # Debugging output
+
 # Parse fields from issue body
 for line in lines:
     if line.startswith("**Name**:"):
@@ -25,7 +35,7 @@ for line in lines:
     elif line.startswith("**Hour**:"):
         record["Hour"] = line.split("**Hour**:")[1].strip()
     elif line.startswith("**Image Path**:"):
-        record["Image Path"] = line.split("**Image Path**:")[1].strip()
+        record["Image Path"] = image_path
 # Read the existing CSV file
 print("Read the existing CSV file")
 csv_file = "hezbollah-martyrs/hezbollah-losses-escalation.csv"
