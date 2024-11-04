@@ -3,181 +3,147 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CSV Search on GitHub</title>
+    <title>Hezbollah Losses</title>
     <style>
         body {
             font-family: Arial, sans-serif;
-            display: flex;
-            gap: 20px;
-            padding: 2em;
-            flex-direction: column;
-        }
-        nav {
-            width: 100%;
-            background-color: #333;
-            padding: 1em;
-            box-sizing: border-box;
-        }
-        nav a {
-            color: white;
-            text-decoration: none;
-            margin: 0 1em;
-            font-weight: bold;
-        }
-        nav a:hover {
-            text-decoration: underline;
-        }
-        .container {
-            display: flex;
-            gap: 20px;
-        }
-        .search-container {
-            width: 60%;
-        }
-        input, button {
-            padding: 0.5em;
-            margin: 0.5em 0;
-            width: 100%;
-        }
-        .result-container {
-            margin-top: 1em;
-        }
-        .formatted-result {
-            padding: 1em;
-            border: 1px solid #ddd;
-            border-radius: 5px;
+            margin: 2em;
+            text-align: center;
             background-color: #f9f9f9;
+        }
+        h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 0.5em;
+        }
+        .counters {
+            display: flex;
+            justify-content: center;
+            gap: 2em;
             margin-top: 1em;
+            margin-bottom: 2em;
         }
-        .formatted-result p {
-            margin: 0.2em 0;
+        .counter {
+            background-color: #333;
+            color: #fff;
+            border-radius: 8px;
+            padding: 1em 2em;
+            width: 150px;
         }
-        .grid-container {
-            width: 40%;
-            max-height: 80vh;
-            overflow-y: auto;
-            border: 1px solid #ddd;
-            padding: 1em;
-            background-color: #f4f4f4;
+        .counter h2 {
+            font-size: 1.5em;
+            margin: 0.3em 0;
         }
-        .grid-table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        .grid-table th, .grid-table td {
-            border: 1px solid #ddd;
-            padding: 0.5em;
-            text-align: left;
+        .counter p {
             font-size: 0.9em;
+            color: #ddd;
         }
-        .grid-table th {
-            background-color: #eee;
-            position: sticky;
-            top: 0;
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
         }
-        .highlight {
-            background-color: #ffd966;
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+        .gallery-item {
+            flex: 1 1 200px;
+            max-width: 300px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        .loading {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 2em;
         }
     </style>
 </head>
 <body>
-<!-- Navigation Menu -->
-    <nav>
-        <a href="index.html">Home</a>
-        <a href="page2.html">CSV Formatter</a>
-        <a href="page3.html">Page 3</a>
-    </nav>
-    <div class="search-container">
-        <h1>Search Hezbollah martyrs</h1>
-        <p>Enter the name you want to search for in the CSV file. Supports partial matches.</p>
 
-        <label for="csvUrl">GitHub CSV Raw URL:</label>
-        <input type="text" id="csvUrl" value="https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-losses-escalation.csv" readonly>
-        <br>
+    <h1>Hezbollah Losses</h1>
 
-        <label for="searchText">Name to Search:</label>
-        <input type="text" id="searchText" placeholder="Enter text to search">
-        <br>
-
-        <button onclick="searchInCSV()">Search</button>
-
-        <div id="result" class="result-container"></div>
+    <div class="counters">
+        <div class="counter">
+            <h2 id="beforeCount">0</h2>
+            <p>Before 23 Sep 2024</p>
+        </div>
+        <div class="counter">
+            <h2 id="afterCount">0</h2>
+            <p>After 23 Sep 2024</p>
+        </div>
+        <div class="counter">
+            <h2 id="totalCount">0</h2>
+            <p>Total Records</p>
+        </div>
     </div>
 
-    <div class="grid-container">
-        <h2>CSV Data</h2>
-        <table class="grid-table" id="csvGrid"></table>
+    <h2>Image Gallery</h2>
+    <div id="gallery" class="gallery">
+        <p class="loading">Loading images...</p>
     </div>
 
     <script>
-        let allRecords = [];
-        let headers = [];
+        const csvUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-losses-escalation.csv";
+        const imageDirUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/images/";
 
+        // Load and parse CSV
         async function loadCSV() {
-            const csvUrl = document.getElementById("csvUrl").value;
-            const csvGrid = document.getElementById("csvGrid");
+            const response = await fetch(csvUrl);
+            const text = await response.text();
+            const rows = text.trim().split("\n").slice(1);  // Remove header
+            let beforeCount = 0, afterCount = 0;
+            const thresholdDate = new Date("2024-09-23");
 
-            try {
-                // Fetch the CSV file
-                const response = await fetch(csvUrl);
-                if (!response.ok) throw new Error("CSV file could not be retrieved.");
-
-                // Get the CSV content as text
-                const csvText = await response.text();
-
-                // Split CSV text into rows and columns
-                const rows = csvText.split("\n").map(row => row.split(","));
-                
-                // Extract headers and store all records for search
-                headers = rows[0].map(header => header.trim());
-                allRecords = rows.slice(1).map(row => row.map(cell => cell.trim()));
-                
-                // Render CSV data in the grid
-                csvGrid.innerHTML = `<tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr>`;
-                
-                allRecords.forEach(record => {
-                    const rowHTML = `<tr>${record.map(cell => `<td>${cell}</td>`).join("")}</tr>`;
-                    csvGrid.innerHTML += rowHTML;
-                });
-            } catch (error) {
-                console.error("Error loading CSV:", error);
-            }
-        }
-
-        async function searchInCSV() {
-            const searchText = document.getElementById("searchText").value.toLowerCase().split(" ");
-            const resultElement = document.getElementById("result");
-            const csvGrid = document.getElementById("csvGrid");
-
-            resultElement.innerHTML = "Searching...";
-            
-            // Reset all row highlights
-            Array.from(csvGrid.getElementsByTagName("tr")).forEach(row => row.classList.remove("highlight"));
-            
-            // Filter matching records and highlight them
-            const matchingRecords = allRecords.filter((record, rowIndex) => {
-                const isMatch = searchText.every(term => record.some(cell => cell.toLowerCase().includes(term)));
-                if (isMatch) {
-                    // Highlight the matching row in the table grid
-                    csvGrid.getElementsByTagName("tr")[rowIndex + 1].classList.add("highlight");
+            rows.forEach(row => {
+                const columns = row.split(",");
+                const dayString = columns[6].trim();
+                const recordDate = new Date(dayString);
+                if (recordDate < thresholdDate) {
+                    beforeCount++;
+                } else {
+                    afterCount++;
                 }
-                return isMatch;
             });
 
-            // Display formatted search results
-            if (matchingRecords.length > 0) {
-                resultElement.innerHTML = `<p>Found ${matchingRecords.length} record(s) matching "${searchText.join(" ")}":</p>`;
-                matchingRecords.forEach(record => {
-                    const recordHTML = headers.map((header, index) => `<p><strong>${header}:</strong> ${record[index] || ''}</p>`).join("");
-                    resultElement.innerHTML += `<div class="formatted-result">${recordHTML}</div>`;
-                });
-            } else {
-                resultElement.innerHTML = `No records found for "${searchText.join(" ")}".`;
-            }
+            // Update counters
+            document.getElementById("beforeCount").textContent = beforeCount;
+            document.getElementById("afterCount").textContent = afterCount;
+            document.getElementById("totalCount").textContent = rows.length;
         }
-        
-        // Load CSV on page load
-        window.onload = loadCSV;
+
+        // Load images
+        async function loadImages() {
+            const gallery = document.getElementById("gallery");
+            gallery.innerHTML = "";  // Clear loading text
+
+            // Add images dynamically (assuming image filenames are known)
+            const imageFiles = ["image1.jpg", "image2.jpg", "image3.jpg"]; // Add all image filenames here
+            imageFiles.forEach(fileName => {
+                const imgUrl = `${imageDirUrl}${fileName}`;
+                const imgElement = document.createElement("img");
+                imgElement.src = imgUrl;
+                imgElement.alt = "Hezbollah Martyr";
+
+                const galleryItem = document.createElement("div");
+                galleryItem.className = "gallery-item";
+                galleryItem.appendChild(imgElement);
+                gallery.appendChild(galleryItem);
+            });
+        }
+
+        // Initialize page content
+        loadCSV();
+        loadImages();
     </script>
 
 </body>
