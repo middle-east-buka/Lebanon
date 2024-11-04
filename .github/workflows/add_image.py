@@ -11,7 +11,7 @@ match = re.search(r'!\[.*\]\((https?://\S+)\)', issue_body)
 
 if match:
     image_url = match.group(1)  # Extracted URL part
-    image_name = os.path.basename(image_url)
+    image_name = os.path.basename(image_url)+".jpg"
     image_path = f"hezbollah-martyrs/images/{image_name}"
 
     print("Image URL found:", image_url)  # Debugging output
