@@ -26,17 +26,26 @@ jobs:
           echo "Issue labels: ${{ toJson(github.event.issue.labels) }}"
           echo "has_label=$(echo '${{ toJson(github.event.issue.labels) }}' | grep -q '"name": "new"' && echo 'true' || echo 'false')" >> $GITHUB_OUTPUT      
 
+      - name: Extract image URL and save the image
+        if: steps.check_label.outputs.has_label == 'true'
+        env:
+          ISSUE_BODY: ${{ github.event.issue.body }}
+        run: python3 .github/workflows/add_image.py
+
       - name: Extract issue content and append to CSV
         if: steps.check_label.outputs.has_label == 'true'
         env:
           ISSUE_BODY: ${{ github.event.issue.body }}
         run: python3 .github/workflows/append_to_csv.py
 
+        
+
       - name: Commit and push changes
         if: steps.check_label.outputs.has_label == 'true'
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git add hezbollah-martyrs/images/
           git add hezbollah-martyrs/hezbollah-losses-escalation.csv
-          git commit -m "Append new record to CSV from Issue #${{ github.event.issue.number }}"
+          git commit -m "Add image and update CSV from Issue #${{ github.event.issue.number }}"
           git push
