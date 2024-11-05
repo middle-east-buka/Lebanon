@@ -118,45 +118,37 @@
     const repoOwner = "middle-east-buka";
     const repoName = "Lebanon";
     const imageDirPath = "hezbollah-martyrs/images"; // Directory containing the images
-    const apiUrl = `https://api.github.com/repos/middle-east-buka/Lebanon/contents/hezbollah-martyrs/hezbollah-martyrs.csv`;
+   const csvUrl = `https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-martyrs.csv?timestamp=${new Date().getTime()}`;
 
-    async function loadCSV() {
-        try {
-            const response = await fetch(apiUrl, {
-                headers: {
-                    'Accept': 'application/vnd.github.v3.raw'  // Ensures raw content retrieval
-                }
-            });
-            
-            if (!response.ok) throw new Error("Failed to fetch CSV via GitHub API.");
-            
-            const data = await response.json();
-            const csvContent = atob(data.content);  // Decode from Base64
-    
-            const rows = csvContent.trim().split("\n").slice(1);  // Remove header
-            let beforeCount = 0, afterCount = 0;
-            const thresholdDate = new Date(2024, 8, 23); // Adjust to zero-based month (September)
-    
-            rows.forEach(row => {
-                const columns = row.split(",");
-                const dayString = columns[5];
-                const [day, month, year] = dayString.split("/").map(Number);
-                const recordDate = new Date(year, month - 1, day);  // Parse date in dd/mm/yyyy format
-                if (recordDate < thresholdDate) {
-                    beforeCount++;
-                } else {
-                    afterCount++;
-                }
-            });
-    
-            // Update counters
-            document.getElementById("beforeCount").textContent = beforeCount;
-            document.getElementById("afterCount").textContent = afterCount;
-            document.getElementById("totalCount").textContent = rows.length;
-        } catch (error) {
-            console.error("Error loading CSV:", error);
-        }
+async function loadCSV() {
+    try {
+        const response = await fetch(csvUrl);
+        if (!response.ok) throw new Error("Failed to fetch CSV from raw.githubusercontent.com");
+
+        const text = await response.text();
+        const rows = text.trim().split("\n").slice(1);  // Remove header
+        let beforeCount = 0, afterCount = 0;
+        const thresholdDate = new Date(2024, 8, 23); // September 23, 2024
+
+        rows.forEach(row => {
+            const columns = row.split(",");
+            const dayString = columns[5];
+            const [day, month, year] = dayString.split("/").map(Number);
+            const recordDate = new Date(year, month - 1, day);
+            if (recordDate < thresholdDate) {
+                beforeCount++;
+            } else {
+                afterCount++;
+            }
+        });
+
+        document.getElementById("beforeCount").textContent = beforeCount;
+        document.getElementById("afterCount").textContent = afterCount;
+        document.getElementById("totalCount").textContent = rows.length;
+    } catch (error) {
+        console.error("Error loading CSV:", error);
     }
+}
     async function loadImagesFromGitHub() {
         const gallery = document.getElementById("gallery");
         gallery.innerHTML = "";  // Clear loading text
