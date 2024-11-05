@@ -32,14 +32,16 @@ if match:
 
 # Parse fields from issue body
 for line in lines:
-    if line.startswith("**Name**:"):
-        record["Name"] = line.split("**Name**:")[1].strip()
-    elif line.startswith("**Arabic Name**:"):
-        record["Arabic Name"] = line.split("**Arabic Name**:")[1].strip()
-    elif line.startswith("**Home Town**:"):
-        record["Home Town"] = line.split("**Home Town**:")[1].strip()
-    elif line.startswith("**Home Town in Arabic**:"):
-        record["Home Town in Arabic"] = line.split("**Home Town in Arabic**:")[1].strip()
+    if line.startswith("Name:"):
+        record["Name"] = line.split("Name:")[1].strip()
+    elif line.startswith("Arabic Name:"):
+        record["Arabic Name"] = line.split("Arabic Name:")[1].strip()
+    elif line.startswith("Home Town:"):
+        record["Home Town"] = line.split("Home Town:")[1].strip()
+    elif line.startswith("Home Town in Arabic:"):
+        record["Home Town in Arabic"] = line.split("Home Town in Arabic:")[1].strip()
+    elif line.startswith("Day:"):
+        record["Day"] = line.split("Day:")[1].strip()
 
 # Add the Upload Date as the current date in dd/mm/yyyy format
 record["Upload Date"] = datetime.now().strftime("%d/%m/%Y")
