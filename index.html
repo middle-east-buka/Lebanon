@@ -126,7 +126,7 @@ const csvUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/
             const text = await response.text();
             const rows = text.trim().split("\n").slice(1);  // Remove header
             let beforeCount = 0, afterCount = 0;
-            const thresholdDate = new Date("24/09/2024");
+            const thresholdDate = new Date("09/23/2024");
 
             rows.forEach(row => {
                 const columns = row.split(",");
