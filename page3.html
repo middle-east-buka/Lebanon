@@ -1,1 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hezbollah Losses</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 2em;
+            text-align: center;
+            background-color: #f9f9f9;
+        }
 
+         nav {
+            width: 100%;
+            background-color: #333;
+            padding: 1em;
+            box-sizing: border-box;
+        }
+        nav a {
+            color: white;
+            text-decoration: none;
+            margin: 0 1em;
+            font-weight: bold;
+        }
+        nav a:hover {
+            text-decoration: underline;
+        }
+        h1 {
+            font-size: 2em;
+            color: #333;
+            margin-bottom: 0.5em;
+        }
+        .counters {
+            display: flex;
+            justify-content: center;
+            gap: 2em;
+            margin-top: 1em;
+            margin-bottom: 2em;
+        }
+        .counter {
+            background-color: #333;
+            color: #fff;
+            border-radius: 8px;
+            padding: 1em 2em;
+            width: 150px;
+        }
+        .counter h2 {
+            font-size: 1.5em;
+            margin: 0.3em 0;
+        }
+        .counter p {
+            font-size: 0.9em;
+            color: #ddd;
+        }
+        .gallery {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+        }
+        .gallery img {
+            width: 100%;
+            height: auto;
+            border-radius: 8px;
+            transition: transform 0.2s ease;
+        }
+        .gallery-item {
+            flex: 1 1 200px;
+            max-width: 300px;
+            overflow: hidden;
+            position: relative;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+        }
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+        .loading {
+            font-size: 1.2em;
+            color: #666;
+            margin-top: 2em;
+        }
+    </style>
+</head>
+<body>
+<!-- Navigation Menu -->
+  <nav>
+        <a href="index.html">Hezbollah Losses</a>
+        <a href="page1.html">Name Search</a>
+        <a href="page2.html">CSV Formatter</a>
+        <a href="page3.html">TBD</a>
+    </nav>
+    <h1>Hezbollah Losses</h1>
+
+   
+    <h2>Image Gallery</h2>
+<div id="gallery" class="gallery">
+    <p class="loading">Loading images...</p>
+</div>
+ 
+<script>
+    const repoOwner = "middle-east-buka";
+    const repoName = "Lebanon";
+    const imageDirPath = "hezbollah-martyrs/images"; // Directory containing the images
+ 
+    async function loadImagesFromGitHub() {
+        const gallery = document.getElementById("gallery");
+        gallery.innerHTML = "";  // Clear loading text
+
+        try {
+            // GitHub API URL to list directory contents
+            const apiUrl = `https://api.github.com/repos/${repoOwner}/${repoName}/contents/${imageDirPath}`;
+            const response = await fetch(apiUrl);
+            if (!response.ok) throw new Error("Failed to load images from GitHub.");
+
+            const files = await response.json();
+
+            // Filter image files (assumes images have extensions like .jpg, .png, etc.)
+            const imageFiles = files.filter(file => file.type === "file" && /\.(jpg|jpeg|png|gif)$/i.test(file.name));
+
+            imageFiles.forEach(file => {
+                const imgElement = document.createElement("img");
+                imgElement.src = file.download_url;
+                imgElement.alt = "Hezbollah Martyr";
+
+                const galleryItem = document.createElement("div");
+                galleryItem.className = "gallery-item";
+                galleryItem.appendChild(imgElement);
+                gallery.appendChild(galleryItem);
+            });
+        } catch (error) {
+            gallery.innerHTML = `<p class="loading">Error loading images: ${error.message}</p>`;
+            console.error(error);
+        }
+    }
+
+    // Load images when the page loads
+    loadImagesFromGitHub();
+</script>
+</body>
+</html>
