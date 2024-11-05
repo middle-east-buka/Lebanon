@@ -118,7 +118,7 @@
     const repoOwner = "middle-east-buka";
     const repoName = "Lebanon";
     const imageDirPath = "hezbollah-martyrs/images"; // Directory containing the images
-const csvUrl = "https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-martyrs.csv";
+    const csvUrl = `https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/hezbollah-martyrs/hezbollah-martyrs.csv?timestamp=${new Date().getTime()}`;
 
         // Load and parse CSV
         async function loadCSV() {
