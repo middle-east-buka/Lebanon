@@ -49,7 +49,7 @@ record["Image Path"] = image_path
 
 # Read the existing CSV file
 print("Read the existing CSV file")
-csv_file = "hezbollah-martyrs/hezbollah-losses-escalation.csv"
+csv_file = "hezbollah-martyrs/hezbollah-martyrs.csv"
 try:
     df = pd.read_csv(csv_file)
     # Set Index as the next integer after the current max index
