@@ -19,6 +19,8 @@ record_pattern = re.compile(r'### Record \d+\s+[-*] Name:\s*(.*?)\s+[-*] Arabic 
 try:
     df = pd.read_csv(csv_file)
     next_index = df["Index"].max() + 1 if not df.empty else 1
+    print("CSV Has records: ")
+    print(next_index)
 except FileNotFoundError:
     df = pd.DataFrame(columns=["Index", "Name", "Arabic Name", "Home Town", "Home Town in Arabic", "Day", "Upload Date", "Image Path"])
     next_index = 1
@@ -37,7 +39,8 @@ for match in record_pattern.findall(issue_body):
         "Upload Date": datetime.now().strftime("%d/%m/%Y"),
         "Image Path": ""
     }
-
+    print("parsed record")
+    print(record)
     # If an image URL is provided, download and save it
     if image_url:
         image_name = f"{os.path.basename(image_url)}_{next_index}.jpg"  # Ensure a unique filename
@@ -60,7 +63,7 @@ for match in record_pattern.findall(issue_body):
     # Add the record to the list of records to append
     records.append(record)
     next_index += 1  # Increment index for each new record
-
+print("Append all new records to the DataFrame")
 # Append all new records to the DataFrame
 df = pd.concat([df, pd.DataFrame(records)], ignore_index=True)
 
