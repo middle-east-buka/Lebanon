@@ -15,12 +15,12 @@ image_dir = "hezbollah-martyrs/images/"
 # Improved regex pattern to match individual records in the issue body
 record_pattern = re.compile(
     r"### Record \d+\s+"
-    r"[-*] Name:\s*(.*?)\s+"
-    r"[-*] Arabic Name:\s*(.*?)\s+"
-    r"[-*] Home Town:\s*(.*?)\s+"
-    r"[-*] Home Town in Arabic:\s*(.*?)\s+"
-    r"[-*] Day \(dd/mm/yyyy\):\s*(.*?)\s+"
-    r"[-*] Image Path:\s*(?:!\[.*?\]\((https?://[^\s]+)\))?",
+    r"- \*\*Name\*\*:\s*(.*?)\s+"
+    r"- \*\*Arabic Name\*\*:\s*(.*?)\s+"
+    r"- \*\*Home Town\*\*:\s*(.*?)\s+"
+    r"- \*\*Home Town in Arabic\*\*:\s*(.*?)\s+"
+    r"- \*\*Day \(dd/mm/yyyy\)\*\*:\s*(.*?)\s+"
+    r"- \*\*Image Path\*\*:\s*(?!-)(?:!\[.*?\]\((https?://[^\s]+)\))?",
     re.MULTILINE | re.DOTALL
 )
 
