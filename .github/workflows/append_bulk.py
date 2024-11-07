@@ -22,7 +22,7 @@ try:
     print("CSV Has records: ")
     print(next_index)
 except FileNotFoundError:
-    df = pd.DataFrame(columns=["Index", "Name", "Arabic Name", "Home Town", "Home Town in Arabic", "Day", "Upload Date", "Image Path"])
+    df = pd.DataFrame(columns=["**Index**", "**Name**", "**Arabic Name**", "**Home Town**", "**Home Town in Arabic**", "**Day**", "**Upload Date**", "**Image Path**"])
     next_index = 1
 
 # Process each matched record
@@ -64,6 +64,7 @@ for match in record_pattern.findall(issue_body):
     records.append(record)
     next_index += 1  # Increment index for each new record
 print("Append all new records to the DataFrame")
+print("next_index")
 # Append all new records to the DataFrame
 df = pd.concat([df, pd.DataFrame(records)], ignore_index=True)
 
