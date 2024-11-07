@@ -37,7 +37,7 @@ except FileNotFoundError:
 records = []
 for match in record_pattern.findall(issue_body):
     name, arabic_name, home_town, home_town_arabic, day, image_url = match
-     print("It's a match")
+    print("It's a match")
     record = {
         "Index": next_index,
         "Name": name.strip(),
