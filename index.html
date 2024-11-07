@@ -54,6 +54,9 @@
             font-size: 0.9em;
             color: #ddd;
         }
+        .filter {
+            margin: 1em 0;
+        }
         .gallery {
             display: flex;
             flex-wrap: wrap;
@@ -111,6 +114,15 @@
     </div>
 
     <h2>Image Gallery</h2>
+
+        <!-- Month-Year Filter Dropdown -->
+    <div class="filter">
+        <label for="monthYearSelect">Filter by Month-Year: </label>
+        <select id="monthYearSelect">
+            <option value="all">All</option>
+        </select>
+    </div>
+    
 <div id="gallery" class="gallery">
     <p class="loading">Loading images...</p>
 </div>
@@ -187,8 +199,16 @@ async function loadCSV() {
 
             // Parse CSV and convert to array of objects
             const rows = text.trim().split("\n").slice(1); // Remove header
+                        const monthYearOptions = new Set();
+
             const data = rows.map(row => {
                 const columns = row.split(",");
+                    const day = columns[5]; // Assuming 'Day' is in the 6th column
+                    const [dayPart, monthPart, yearPart] = day.split("/");
+                    const monthYear = `${monthPart}-${yearPart}`; // Format Month-Year (e.g., "09-2024")
+
+                    // Store month-year in set for dropdown options
+                    monthYearOptions.add(monthYear);
                 return {
                     Index: columns[0],
                     Name: columns[1],
@@ -220,6 +240,8 @@ async function loadCSV() {
                 img.src = `https://raw.githubusercontent.com/middle-east-buka/Lebanon/main/${item.ImagePath}`;
                 img.alt = item.Name;
 
+                
+
                 const info = document.createElement("div");
                 info.className = "info";
                 info.innerHTML = `<p><strong>Name:</strong> ${item.Name}</p>
@@ -232,6 +254,18 @@ async function loadCSV() {
                 galleryItem.appendChild(info);
                 gallery.appendChild(galleryItem);
             });
+
+            // Event listener for dropdown to filter images
+                monthYearSelect.addEventListener("change", (event) => {
+                    const selectedMonthYear = event.target.value;
+                    filterAndDisplayImagesByMonthYear(data, selectedMonthYear);
+                });
+        }
+
+    // New filterAndDisplayImagesByMonthYear function
+        function filterAndDisplayImagesByMonthYear(data, selectedMonthYear) {
+            const filteredData = selectedMonthYear === "all" ? data : data.filter(item => item.MonthYear === selectedMonthYear);
+            displayImages(filteredData);
         }
     
 loadCSV();
