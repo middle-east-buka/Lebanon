@@ -2,7 +2,7 @@
 name: Bulk Record Submission
 about: Add multiple records to the Hezbollah Losses CSV
 title: "Bulk Record Submission - [Total Records]"
-labels: new
+labels: bulk
 ---
 
 ## Bulk Record Submission
