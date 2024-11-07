@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Daily Records Bar Chart</title>
+    <title>Monthly Records Bar Chart</title>
     <style>
         body {
             font-family: Arial, sans-serif;
@@ -28,7 +28,7 @@
             margin-top: 20px;
         }
         .bar {
-            width: 20px;
+            width: 30px;
             background-color: #333;
             border-radius: 5px 5px 0 0;
             text-align: center;
@@ -39,10 +39,11 @@
             margin: 0;
             padding: 5px 0;
         }
-        .day-label {
+        .month-label {
             font-weight: bold;
             margin-top: 5px;
             font-size: 0.8em;
+            text-align: center;
         }
         .loading {
             font-size: 1.2em;
@@ -52,7 +53,7 @@
     </style>
 </head>
 <body>
-    <h1>Hezbollah Losses - Daily Records Bar Chart</h1>
+    <h1>Hezbollah Losses - Monthly Records Bar Chart</h1>
     <div id="barChart" class="bar-chart">
         <p class="loading">Loading data...</p>
     </div>
@@ -68,17 +69,22 @@
                 const text = await response.text();
                 const rows = text.trim().split("\n").slice(1); // Skip header
 
-                const dayCounts = {};
+                const monthYearCounts = {};
 
-                // Parse each row and count occurrences by Day
+                // Parse each row and count occurrences by Month-Year
                 rows.forEach(row => {
                     const columns = row.split(",");
                     const day = columns[5]; // Assuming 'Day' is in the 6th column
 
-                    if (dayCounts[day]) {
-                        dayCounts[day]++;
+                    const [dayPart, monthPart, yearPart] = day.split("/");
+
+                    // Format as Month-Year (e.g., "09-2024")
+                    const monthYear = `${monthPart}-${yearPart}`;
+
+                    if (monthYearCounts[monthYear]) {
+                        monthYearCounts[monthYear]++;
                     } else {
-                        dayCounts[day] = 1;
+                        monthYearCounts[monthYear] = 1;
                     }
                 });
 
@@ -86,23 +92,23 @@
                 const barChart = document.getElementById("barChart");
                 barChart.innerHTML = "";
 
-                // Generate bars for each day
-                for (const [day, count] of Object.entries(dayCounts)) {
+                // Generate bars for each Month-Year
+                for (const [monthYear, count] of Object.entries(monthYearCounts)) {
                     const bar = document.createElement("div");
                     bar.className = "bar";
                     bar.style.height = `${count * 10}px`; // Adjust multiplier as needed
                     bar.innerHTML = `<p>${count}</p>`;
 
-                    const dayLabel = document.createElement("div");
-                    dayLabel.className = "day-label";
-                    dayLabel.textContent = day;
+                    const monthLabel = document.createElement("div");
+                    monthLabel.className = "month-label";
+                    monthLabel.textContent = monthYear;
 
                     const barContainer = document.createElement("div");
                     barContainer.style.display = "flex";
                     barContainer.style.flexDirection = "column";
                     barContainer.style.alignItems = "center";
                     barContainer.appendChild(bar);
-                    barContainer.appendChild(dayLabel);
+                    barContainer.appendChild(monthLabel);
 
                     barChart.appendChild(barContainer);
                 }
