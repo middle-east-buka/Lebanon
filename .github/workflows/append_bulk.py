@@ -12,23 +12,32 @@ print("Issue body content:", issue_body)  # Debugging output
 csv_file = "hezbollah-martyrs/hezbollah-martyrs.csv"
 image_dir = "hezbollah-martyrs/images/"
 
-# Regex pattern to match individual records in the issue body
-record_pattern = re.compile(r'### Record \d+\s+[-*] Name:\s*(.*?)\s+[-*] Arabic Name:\s*(.*?)\s+[-*] Home Town:\s*(.*?)\s+[-*] Home Town in Arabic:\s*(.*?)\s+[-*] Day \(dd/mm/yyyy\):\s*(.*?)\s+[-*] Image Path:\s*(!\[[^\]]*\]\((https?://[^\)]+)\))?', re.DOTALL)
+# Improved regex pattern to match individual records in the issue body
+record_pattern = re.compile(
+    r"### Record \d+\s+"
+    r"[-*] Name:\s*(.*?)\s+"
+    r"[-*] Arabic Name:\s*(.*?)\s+"
+    r"[-*] Home Town:\s*(.*?)\s+"
+    r"[-*] Home Town in Arabic:\s*(.*?)\s+"
+    r"[-*] Day \(dd/mm/yyyy\):\s*(.*?)\s+"
+    r"[-*] Image Path:\s*(?:!\[.*?\]\((https?://[^\s]+)\))?",
+    re.MULTILINE | re.DOTALL
+)
 
 # Read the existing CSV file or create a new one if it doesn't exist
 try:
     df = pd.read_csv(csv_file)
     next_index = df["Index"].max() + 1 if not df.empty else 1
-    print("CSV Has records: ")
-    print(next_index)
+    print("CSV has :", next_index)
 except FileNotFoundError:
-    df = pd.DataFrame(columns=["**Index**", "**Name**", "**Arabic Name**", "**Home Town**", "**Home Town in Arabic**", "**Day**", "**Upload Date**", "**Image Path**"])
+    df = pd.DataFrame(columns=["Index", "Name", "Arabic Name", "Home Town", "Home Town in Arabic", "Day", "Upload Date", "Image Path"])
     next_index = 1
 
 # Process each matched record
 records = []
 for match in record_pattern.findall(issue_body):
-    name, arabic_name, home_town, home_town_arabic, day, _, image_url = match
+    name, arabic_name, home_town, home_town_arabic, day, image_url = match
+     print("It's a match")
     record = {
         "Index": next_index,
         "Name": name.strip(),
@@ -64,7 +73,7 @@ for match in record_pattern.findall(issue_body):
     records.append(record)
     next_index += 1  # Increment index for each new record
 print("Append all new records to the DataFrame")
-print("next_index")
+print(next_index)
 # Append all new records to the DataFrame
 df = pd.concat([df, pd.DataFrame(records)], ignore_index=True)
 
